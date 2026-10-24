@@ -48,3 +48,4 @@ bin/
 **/__pycache__/
 /src/test/
 /.idea/
+*.zip

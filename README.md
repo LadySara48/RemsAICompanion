@@ -27,9 +27,9 @@ An internet connection and your own API credentials are required. Provider fees 
 
 ## Supported versions
 
-- **Fabric:** 1.18.2, 1.19.2, 1.20.1, 1.21–1.21.11, and 26.3.
-- **Forge:** 1.18.2, 1.19.2, and 1.20.1.
-- **NeoForge:** 1.21.1–1.21.11, 26.1, 26.1.1, 26.1.2, 26.2, and 26.3.
+- **Fabric:** 1.18.2, 1.20.1, 1.21.1, 1.21.4, 1.21.11, 26.2, and 26.3.
+- **Forge:** 1.18.2 and 1.20.1.
+- **NeoForge:** 1.21.1, 1.21.11, and 26.3.
 
 ## Building
 
@@ -46,3 +46,9 @@ Use JDK 25 and Python 3.11+.
 ```
 
 See the [Fabric build guide](ports/fabric/README.md) and [Forge / NeoForge build guide](ports/loaders/README.md) for details.
+
+## Artwork
+
+Original artwork and the mod icon by **Hearlov**. Do not claim these visuals as your own.
+Screenshots, videos, streams and mod listings are welcome with credit, including monetized coverage.
+See [the artwork license](LICENSE-ASSETS.txt) for the full permissions and restrictions.

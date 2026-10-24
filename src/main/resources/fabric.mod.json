@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "id": "rems_ai_companion",
+  "version": "${version}",
+  "name": "Rem's AI Companion",
+  "description": "A client-side AI companion. Initial development setup.",
+  "authors": ["Hearlov"],
+  "environment": "client",
+  "icon": "assets/rems_ai_companion/icon.png",
+  "license": "All Rights Reserved",
+  "entrypoints": {
+    "client": ["org.hearlov.remscompanion.RemsAICompanionClient"]
+  },
+  "depends": {
+    "fabricloader": ">=0.19.5",
+    "minecraft": "26.3",
+    "java": ">=25",
+    "fabric-api": "*"
+  }
+}

@@ -1,0 +1,43 @@
+plugins { id 'net.neoforged.moddev' version '2.0.148' }
+def mc = providers.gradleProperty('mc').getOrElse('1.21.1')
+def releases = new groovy.json.JsonSlurper().parse(file('../loaders/versions.json')).neoforge
+if (!releases.containsKey(mc)) throw new GradleException("Unsupported NeoForge target: $mc")
+def shared = new Properties(); file('../../gradle.properties').withInputStream { shared.load(it) }
+group = 'org.hearlov.remscompanion'
+version = "${shared.mod_version}+neoforge-$mc"
+base { archivesName = 'rems-ai-companion' }
+layout.buildDirectory = file("build/$mc")
+repositories { mavenCentral() }
+java { toolchain.languageVersion = JavaLanguageVersion.of(25); withSourcesJar() }
+neoForge {
+    enable { version = releases[mc]; disableRecompilation = true }
+    runs { client { client(); gameDirectory = project.file("run/$mc") } }
+    mods { rems_ai_companion { sourceSet sourceSets.main } }
+}
+def generated = layout.buildDirectory.dir('portSources')
+def generatedResources = layout.buildDirectory.dir('portResources')
+def preparePort = tasks.register('preparePort', Exec) {
+    inputs.dir('../../src/client/java'); inputs.dir('../fabric/compat'); inputs.file('../fabric/prepare.py')
+    inputs.dir('../loaders'); inputs.property('mc', mc); inputs.property('modVersion', project.version)
+    inputs.property('platformVersion', releases[mc])
+    outputs.dir(generated); outputs.dir(generatedResources)
+    commandLine 'python', '../loaders/prepare.py', 'neoforge', mc, generated.get().asFile.absolutePath, generatedResources.get().asFile.absolutePath, project.version, releases[mc]
+}
+sourceSets {
+    main { java.setSrcDirs(['../../src/main/java', generated]); resources.setSrcDirs(['../../src/main/resources', generatedResources]); resources.exclude('fabric.mod.json') }
+    test { java.setSrcDirs(['../../src/test/java']) }
+}
+sourceSets.test.compileClasspath += sourceSets.main.compileClasspath
+sourceSets.test.runtimeClasspath += sourceSets.main.runtimeClasspath
+dependencies {
+    testImplementation platform('org.junit:junit-bom:6.0.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8' }
+tasks.named('compileJava') { dependsOn preparePort; options.release = mc.startsWith('26.') ? 25 : 21 }
+tasks.named('compileTestJava') { options.release = 25 }
+tasks.named('processResources') { dependsOn preparePort }
+tasks.named('sourcesJar') { dependsOn preparePort }
+tasks.named('test') { useJUnitPlatform() }
+tasks.named('jar') { destinationDirectory = file('../../dist/neoforge') }

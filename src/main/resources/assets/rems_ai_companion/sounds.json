@@ -1,0 +1,82 @@
+{
+  "voice.got_answer_en": {
+    "subtitle": "subtitles.rems_ai_companion.got_answer_en",
+    "sounds": [
+      {
+        "name": "rems_ai_companion:voice/got_answer_en"
+      }
+    ]
+  },
+  "voice.got_answer_ja": {
+    "subtitle": "subtitles.rems_ai_companion.got_answer_ja",
+    "sounds": [
+      {
+        "name": "rems_ai_companion:voice/got_answer_ja"
+      }
+    ]
+  },
+  "voice.hehe": {
+    "subtitle": "subtitles.rems_ai_companion.hehe",
+    "sounds": [
+      {
+        "name": "rems_ai_companion:voice/hehe"
+      }
+    ]
+  },
+  "voice.rem_heart_en": {
+    "subtitle": "subtitles.rems_ai_companion.rem_heart_en",
+    "sounds": [
+      {
+        "name": "rems_ai_companion:voice/rem_heart_en"
+      }
+    ]
+  },
+  "voice.rem_heart_ja": {
+    "subtitle": "subtitles.rems_ai_companion.rem_heart_ja",
+    "sounds": [
+      {
+        "name": "rems_ai_companion:voice/rem_heart_ja"
+      }
+    ]
+  },
+  "voice.sleep": {
+    "subtitle": "subtitles.rems_ai_companion.sleep",
+    "sounds": [
+      {
+        "name": "rems_ai_companion:voice/sleep"
+      }
+    ]
+  },
+  "voice.start_thinking_en": {
+    "subtitle": "subtitles.rems_ai_companion.start_thinking_en",
+    "sounds": [
+      {
+        "name": "rems_ai_companion:voice/start_thinking_en"
+      }
+    ]
+  },
+  "voice.start_thinking_ja": {
+    "subtitle": "subtitles.rems_ai_companion.start_thinking_ja",
+    "sounds": [
+      {
+        "name": "rems_ai_companion:voice/start_thinking_ja"
+      }
+    ]
+  },
+  "voice.still_thinking_en": {
+    "subtitle": "subtitles.rems_ai_companion.still_thinking_en",
+    "sounds": [
+      {
+        "name": "rems_ai_companion:voice/still_thinking_en"
+      }
+    ]
+  },
+  "voice.still_thinking_ja": {
+    "subtitle": "subtitles.rems_ai_companion.still_thinking_ja",
+    "sounds": [
+      {
+        "name": "rems_ai_companion:voice/still_thinking_ja"
+      }
+    ]
+  }
+}

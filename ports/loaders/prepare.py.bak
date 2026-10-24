@@ -1,0 +1,109 @@
+"""Reuse the tested GUI adapters; generate only the Forge/NeoForge platform boundary."""
+from pathlib import Path
+import subprocess, sys, json
+
+loader, mc, sources, resources, version, platform_version = sys.argv[1:]
+root = Path(__file__).resolve().parents[2]
+sources, resources = Path(sources).resolve(), Path(resources).resolve()
+for path in (sources, resources):
+    if not path.is_relative_to(root / ('ports/' + loader + '/build')):
+        raise ValueError('Output outside the loader build directory')
+subprocess.run([sys.executable, str(root / 'ports/fabric/prepare.py'), mc, str(sources), loader], check=True)
+package = sources / 'org/hearlov/remscompanion'
+forge = loader == 'forge'
+modern = tuple(map(int, mc.split('.'))) >= (26,)
+fml = 'net.minecraftforge' if forge else 'net.neoforged'
+event = 'net.minecraftforge' if forge else 'net.neoforged.neoforge'
+category = '"key.category.rems_ai_companion.main"'
+if tuple(map(int, mc.split('.'))) >= (1,21,9):
+    category = 'KeyMapping.Category.register(net.minecraft.resources.' + ('Identifier' if modern or tuple(map(int, mc.split('.'))) >= (1,21,11) else 'ResourceLocation') + '.fromNamespaceAndPath(MOD_ID, "main"))'
+keycode = 'InputConstants.KEY_R' if modern else 'org.lwjgl.glfw.GLFW.GLFW_KEY_R'
+keyconstruct = 'new KeyMapping("key.rems_ai_companion.open_menu", ' + ('InputConstants.Type.KEYSYM, ' if not modern else '') + keycode + ', ' + category + ')'
+gui_manager = tuple(map(int, mc.split('.'))) >= (26,2)
+screen = 'client.gui.screen()' if gui_manager else 'client.screen'
+set_screen = 'client.gui.setScreen(new CompanionScreen())' if gui_manager else 'client.setScreen(new CompanionScreen())'
+bus = 'net.minecraftforge.common.MinecraftForge.EVENT_BUS' if forge else 'net.neoforged.neoforge.common.NeoForge.EVENT_BUS'
+tickclass = 'net.minecraftforge.event.TickEvent.ClientTickEvent' if forge else 'net.neoforged.neoforge.client.event.ClientTickEvent.Post'
+tickguard = 'if (event.phase != net.minecraftforge.event.TickEvent.Phase.END) return;' if forge else ''
+register_key = f'modBus.addListener(({event}.client.event.RegisterKeyMappingsEvent event) -> {{ openMenu = {keyconstruct}; event.register(openMenu); }});'
+if mc == '1.18.2':
+    register_key = f'modBus.addListener((net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent event) -> event.enqueueWork(() -> {{ openMenu = {keyconstruct}; net.minecraftforge.client.ClientRegistry.registerKeyBinding(openMenu); }}));'
+shutdown = f'{bus}.addListener(({event}.event.GameShuttingDownEvent event) -> ChatSession.shutdown());'
+if mc == '1.18.2':
+    # Forge 1.18.2 predates GameShuttingDownEvent. The hook waits for the bounded writer flush.
+    shutdown = 'Runtime.getRuntime().addShutdownHook(new Thread(ChatSession::shutdown, "rem-client-shutdown"));'
+text = f'''package org.hearlov.remscompanion;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.KeyMapping;
+import com.mojang.blaze3d.platform.InputConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+final class RemsAICompanionClient {{
+    static final String MOD_ID = "rems_ai_companion";
+    static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
+    private static KeyMapping openMenu;
+    static void initialize({fml + '.eventbus.api.IEventBus' if forge else 'net.neoforged.bus.api.IEventBus'} modBus) {{
+        ChatSession.load();
+        {register_key}
+        {bus}.addListener(RemsAICompanionClient::tick);
+        {shutdown}
+        LOGGER.info("Rem's AI Companion initialized ({loader}).");
+    }}
+    private static void tick({tickclass} event) {{
+        {tickguard}
+        Minecraft client = Minecraft.getInstance();
+        ChatSession.tick(); CompanionVoices.tick(client);
+        while (openMenu != null && openMenu.consumeClick()) if (client.level != null && {screen} == null) {set_screen};
+    }}
+}}
+'''
+(package / 'RemsAICompanionClient.java').write_text(text, encoding='utf-8')
+if forge:
+    bootstrap = '''package org.hearlov.remscompanion;
+@net.minecraftforge.fml.common.Mod("rems_ai_companion")
+public final class RemsAICompanion {
+    public RemsAICompanion() {
+        net.minecraftforge.fml.DistExecutor.unsafeRunWhenOn(net.minecraftforge.api.distmarker.Dist.CLIENT,
+            () -> () -> RemsAICompanionClient.initialize(net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext.get().getModEventBus()));
+    }
+}
+'''
+else:
+    bootstrap = '''package org.hearlov.remscompanion;
+@net.neoforged.fml.common.Mod(value = "rems_ai_companion", dist = net.neoforged.api.distmarker.Dist.CLIENT)
+public final class RemsAICompanion {
+    public RemsAICompanion(net.neoforged.bus.api.IEventBus modBus) { RemsAICompanionClient.initialize(modBus); }
+}
+'''
+(package / 'RemsAICompanion.java').write_text(bootstrap, encoding='utf-8')
+meta = resources / 'META-INF'; meta.mkdir(parents=True, exist_ok=True)
+loader_range = '[40,)' if forge else '[4,)'
+minimum = platform_version.split('-',1)[1] if forge else platform_version
+dependencies = '\n'.join(f'''[[dependencies.rems_ai_companion]]
+modId="{dependency}"
+{ 'mandatory=true' if forge else 'type="required"' }
+versionRange="{bounds}"
+ordering="NONE"
+side="CLIENT"
+''' for dependency, bounds in [(loader, '[' + minimum + ',)'), ('minecraft', '[' + mc + ']')])
+metadata = f'''modLoader="javafml"
+loaderVersion="{loader_range}"
+license="All Rights Reserved"
+[[mods]]
+modId="rems_ai_companion"
+version="{version}"
+displayName="Rem's AI Companion"
+authors="Hearlov"
+description="Client-side AI chat companion with custom prompts, chat history and voices."
+''' + ('displayTest="IGNORE_SERVER_VERSION"\n' if forge else '') + dependencies
+(meta / ('mods.toml' if forge else 'neoforge.mods.toml')).write_text(metadata, encoding='utf-8')
+formats = {'1.18.2':8, '1.19.2':9, '1.20.1':15, '1.21.1':34,
+           '1.21.2':42, '1.21.3':42, '1.21.4':46, '1.21.5':55,
+           '1.21.6':63, '1.21.7':64, '1.21.8':64}
+pack = {'description': "Rem's AI Companion resources"}
+if mc in formats:
+    pack['pack_format'] = formats[mc]
+else:
+    # These resources contain only translations, sounds and PNGs and are shared across this range.
+    pack.update(min_format=[69,0], max_format=[97,1])
+(resources / 'pack.mcmeta').write_text(json.dumps({'pack':pack}, indent=2), encoding='utf-8')

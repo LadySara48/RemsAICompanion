@@ -1,0 +1,36 @@
+Rem's AI Companion - Original Artwork License
+Copyright (c) 2026 Hearlov. All rights reserved except as expressly permitted below.
+
+1. Scope
+This license covers Hearlov's original visual contributions to the PNG images
+under assets/rems_ai_companion/, including the mod icon and Rem illustrations.
+It does not license source code, audio, third-party material, or ownership of
+Minecraft, Re:Zero, Rem, or any other pre-existing character, name or trademark.
+Rights in third-party material remain with their respective owners.
+
+2. Permitted use
+You may use and display this artwork as part of playing Rem's AI Companion.
+You may redistribute the unmodified artwork bundled within an unmodified copy
+of this mod, including in free modpacks, provided this notice is retained.
+You may show the artwork in screenshots, videos, livestreams, reviews, guides,
+and download/listing pages about this mod, including monetized coverage.
+Resizing, cropping and compression necessary for those presentations are allowed.
+
+3. Attribution
+When publicly sharing the mod or presenting its artwork, give reasonably visible
+credit in the page, description, credits or accompanying documentation:
+"Artwork by Hearlov - Rem's AI Companion".
+Keep any existing attribution and this notice in redistributed mod files.
+Do not claim that you created or own Hearlov's artwork. Do not remove authorship
+notices or imply that Hearlov endorses your project or publication.
+
+4. Other uses
+Permission is not granted to sell or license the artwork separately, redistribute
+it as a standalone asset pack, or reuse it in another mod, product or project.
+Other uses or redistribution of edited artwork require Hearlov's prior permission,
+except for the presentation changes explicitly allowed in section 2.
+
+5. Limits
+This permission applies only to rights Hearlov owns and can grant. Applicable
+statutory exceptions and limitations are unaffected. The artwork is provided
+as is, without warranties, to the extent permitted by applicable law.
